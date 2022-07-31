@@ -1,4 +1,5 @@
 from flask import Blueprint
+from sqlalchemy import or_
 
 from .models import Matches
 from .utils.auth_utils import token_required
@@ -35,3 +36,13 @@ def matches(current_user):
 
     else:
         return failed_response(*unauthorized_access_to_admin_api)
+
+
+@groups.route(f"/{GLOBAL_ENDPOINT}/{VERSION}/matches/teams/<string:team_id>")
+@token_required
+def matches_teams_get(current_user, team_id):
+    matches = Matches.query.filter(
+        or_(Matches.team1_id == team_id, Matches.team2_id == team_id)
+    )
+
+    return success_response(200, [match.to_dict() for match in matches])

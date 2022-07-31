@@ -69,13 +69,17 @@ class Matches(db.Model):
         default=lambda: str(uuid.uuid4()),
     )
     group_name = db.Column(db.String(1), nullable=False)
+
+    # group_id = db.Column(db.String(100), db.ForeignKey("group.id"), nullable=False)
+    # group = db.relationship("Group", foreign_keys=group_id, backref="group")
+
     match_index = db.Column(db.Integer, nullable=False)
 
     team1_id = db.Column(db.String(100), db.ForeignKey("team.id"), nullable=False)
-    team1 = db.relationship("Team", foreign_keys=team1_id)
+    team1 = db.relationship("Team", foreign_keys=team1_id, backref="match1")
 
     team2_id = db.Column(db.String(100), db.ForeignKey("team.id"), nullable=False)
-    team2 = db.relationship("Team", foreign_keys=team2_id)
+    team2 = db.relationship("Team", foreign_keys=team2_id, backref="match2")
 
     scores = db.relationship("Scores", back_populates="match")
 
@@ -128,3 +132,18 @@ class Team(db.Model):
 
     def to_dict(self):
         return {"id": self.id, "name": self.name}
+
+
+class Group(db.Model):
+    __tablename__ = "group"
+    id = db.Column(
+        db.String(100),
+        primary_key=True,
+        nullable=False,
+        default=lambda: str(uuid.uuid4()),
+    )
+    short_name = db.Column(db.String(1), unique=True, nullable=False)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+
+    def to_dict(self):
+        return {"id": self.id, "short_name": self.short_name, "name": self.name}
